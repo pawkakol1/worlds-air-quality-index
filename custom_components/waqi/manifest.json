@@ -1,0 +1,10 @@
+{
+    "domain": "waqi",
+    "documentation": "https://github.com/pawkakol1/worlds-air-quality-index",
+    "issue_tracker": "https://github.com/pawkakol1/worlds-air-quality-index/issues",
+    "codeowners": ["@pawkakol1"],
+    "name": "World's Air Quality Index API",
+    "version": "0.0.1"
+  }
+  
+  

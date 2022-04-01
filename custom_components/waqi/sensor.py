@@ -1,45 +1,21 @@
 """Platform for sensor integration."""
 
 import logging
-from datetime import timedelta
 import json
 import requests
-import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-import homeassistant.helpers.config_validation as cv
-from homeassistant.const import (CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, CONF_SCAN_INTERVAL)
 from homeassistant.util import Throttle
 from homeassistant.helpers.entity import Entity
+from .const import SENSORS, SCAN_PERIOD
 
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_API_KEY): cv.string,
-    vol.Required(CONF_LATITUDE): cv.string,
-    vol.Required(CONF_LONGITUDE): cv.string,
-    vol.Required(CONF_SCAN_INTERVAL): cv.positive_int
-})
 
-SCAN_PERIOD = timedelta(minutes=15)
 
-SENSORS = {
-    'co': ['Carbon monoxide (CO)', 'μg/m3', 'mdi:molecule-co'],
-    'h': ['Humidity', 'RH%', 'mdi:water-percent'],
-    'no2': ['Nitrogen dioxide (NO2)', 'μg/m3', 'mdi:smog'],
-    'o3': ['Ozone (O3)', 'μg/m3', 'mdi:skull-outline'],
-    'p': ['Atmospheric pressure', 'hPa', 'mdi:gauge'],
-    'pm10': ['Coarse particles (PM10)', 'μg/m3', 'mdi:grain'],
-    'pm25': ['Fine particles (PM2.5)', 'μg/m3', 'mdi:grain'],
-    'so2': ['Sulphur dioxide (SO2)', 'μg/m3', 'mdi:smog'],
-    't': ['Temperature', 'degC', 'mdi:thermometer'],
-    'w': ['Wind speed', 'm/s', 'mdi:weather-windy'],
-    'aqi': ['Air Quality Index', '', 'mdi:leaf']
-}
 
 def setup_platform(
     hass: HomeAssistant,

@@ -1,0 +1,19 @@
+{
+  "config": {
+    "error": {
+      "invalid_token": "Niewłaściwy token",
+      "invalid_station_name": "Niewłaściwa nazwa stacji"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "name": "Nazwa serwisu",
+          "token": "Klucz tokena konta World's Air Quality Index",
+          "latitude": "Szerokość geograficzna stacji lub obiektu",
+          "longitude": "Długość geograficzna stacji lub obiektu",
+          "scan_interval": "Częstotliwość aktualizacji danych stacji"
+        }
+      }
+    }
+  }
+}

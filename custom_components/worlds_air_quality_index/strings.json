@@ -1,0 +1,19 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "name": "Name of service",
+          "token": "Token key of World's Air Quality Index account",
+          "latitude": "Latitude of station or site",
+          "longitude": "Longitude of station or site",
+          "scan_interval": "Scan interval of station updating"
+        }
+      }
+    },
+    "error": {
+      "invalid_token": "Invalid token",
+      "invalid_station_name": "Invalid station name"
+    }
+  }
+}

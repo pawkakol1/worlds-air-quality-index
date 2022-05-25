@@ -5,14 +5,14 @@ A Home Assistant custom Integration for World's Air Quality Index (waqi.info).
 Integration supports below sensors of WAQI station:
 
 - Air Quality Index
-- Particulate matter (PM10)
-- Particulate matter (PM2,5)
 - Carbon monoxide (CO)
 - Nitrogen dioxide (NO2)
 - Ozone (O3)
+- Particulate matter (PM10)
+- Particulate matter (PM2,5)
 - Sulphur dioxide (SO2)
-- Humidity
 - Atmospheric pressure
+- Humidity
 - Temperature
 - Rain
 - Wind speed

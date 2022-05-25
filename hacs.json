@@ -3,5 +3,5 @@
     "render_readme": true,
     "domains": ["sensor"],
     "country": "PL",
-    "homeassistant": "core-2022.3.7"
+    "homeassistant": "core-2022.5.4"
   }

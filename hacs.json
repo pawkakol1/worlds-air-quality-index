@@ -1,6 +1,6 @@
 {
   "name": "World's Air Quality Index",
   "render_readme": true,
-  "country": ["GB", "US,", "PL"],
+  "country": ["GB", "US", "PL"],
   "homeassistant": "core-2022.5.5"
 }

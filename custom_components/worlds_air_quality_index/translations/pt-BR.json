@@ -1,0 +1,19 @@
+{
+  "config": {
+    "error": {
+      "invalid_token": "token inválido",
+      "invalid_station_name": "nome da estação inválido"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "name": "Nome da estação",
+          "token": "Token da conta do Índice Mundial de Qualidade do Ar",
+          "latitude": "Latitude da estação ou site",
+          "longitude": "Longitude da estação ou site",
+          "scan_interval": "Intervalo de escaneamento de atualização da estação"
+        }
+      }
+    }
+  }
+}

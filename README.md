@@ -53,7 +53,7 @@ In case of geographic localization, there will be shown next window, where you n
 In case of station ID, there will be shown next window, where you need to put:
 
 - your waqi.info account token (required),
-- ID of WAQI station (required),
+- ID of WAQI station (required) - 13837 is proper, @13837 is not proper,
 - your own name of station (optional).
 
 To get WAQI token you need to sign up [here](https://aqicn.org/data-platform/token/).

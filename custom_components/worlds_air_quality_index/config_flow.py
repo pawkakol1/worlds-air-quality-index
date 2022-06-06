@@ -15,27 +15,23 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_LATITUDE, 
     CONF_LONGITUDE, 
-    CONF_TOKEN
+    CONF_TOKEN,
+    CONF_LOCATION,
+    CONF_METHOD,
+    CONF_ID
 )
 from .const import (
     DOMAIN,
-    DEFAULT_NAME
-)
-
-DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_TOKEN): cv.string,
-        vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_LATITUDE): cv.string,
-        vol.Optional(CONF_LONGITUDE): cv.string,
-    }
+    DEFAULT_NAME,
+    GEOGRAPHIC_LOCALIZATION,
+    STATION_ID
 )
 
 
 class WorldsAirQualityIndexConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for worlds_air_quality_index integration."""
 
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_import(self, config: dict[str, Any]) -> FlowResult:
         """Import a configuration from config.yaml."""
@@ -45,47 +41,151 @@ class WorldsAirQualityIndexConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         config[CONF_NAME] = name
         return await self.async_step_user(user_input=config)
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle the initial step."""
 
+        data_schema = vol.Schema(
+            {
+                vol.Required(CONF_METHOD, default=GEOGRAPHIC_LOCALIZATION): vol.In(
+                    (
+                        GEOGRAPHIC_LOCALIZATION,
+                        STATION_ID
+                    )
+                )
+            }
+        )
+
+        if user_input is None:
+            return self.async_show_form(
+                step_id="user",
+                data_schema=data_schema,
+            )
+
+        if user_input[CONF_METHOD] == GEOGRAPHIC_LOCALIZATION:
+            return await self.async_step_geographic_localization()
+        return await self.async_step_station_id()
+    
+    async def async_step_geographic_localization(self, user_input=None) -> FlowResult:
+        """Handle the geographic localization step."""
         errors = {}
 
-        if user_input:
+        data_schema = vol.Schema(
+            {
+                vol.Required(CONF_TOKEN): cv.string,
+                vol.Required(CONF_LATITUDE, default=self.hass.config.latitude): cv.latitude,
+                vol.Required(CONF_LONGITUDE, default=self.hass.config.longitude): cv.longitude,
+                vol.Optional(CONF_NAME): cv.string
+            }
+        )
 
+        if user_input:
             token = user_input[CONF_TOKEN]
-            latitude = user_input.get(CONF_LATITUDE, self.hass.config.latitude)
-            longitude = user_input.get(CONF_LONGITUDE, self.hass.config.longitude)
-            requester = WaqiDataRequester(latitude, longitude, token)
+            latitude = user_input[CONF_LATITUDE]
+            longitude = user_input[CONF_LONGITUDE]
+            method = CONF_LOCATION
+            requester = WaqiDataRequester(latitude, longitude, token, None, method)
             await self.hass.async_add_executor_job(requester.update)
 
-            testData = requester.GetData()
+            validateData = requester.GetData()
+            if validateData:
+                if validateData["status"] == "ok":
+                    if "status" in validateData["data"]:
+                        if validateData["data"]["status"] == "error":
+                            if validateData["data"]["msg"] == "Unknown ID":
+                                errors["base"] = "unknow_station_id"
+                            else:
+                                errors["base"] = "server_error"
+                elif validateData["status"] == "error":
+                    if validateData["data"] == "Invalid key":
+                        errors["base"] = "invalid_token"
+                    else:
+                        errors["base"] = "server_error"
+                else:
+                    errors["base"] = "server_error"
+            else:
+                errors["base"] = "server_not_available"
+
             stationName = requester.GetStationName()
             name = user_input.get(CONF_NAME, stationName)
 
-            if testData is None:
-                errors["base"] = "invalid_token"
-            elif stationName is None:
-                errors["base"] = "invalid_station_name"
-            else:
+            if not errors:
                 await self.async_set_unique_id(name)
                 self._abort_if_unique_id_configured()
 
                 return self.async_create_entry(
                     title=name,
                     data={
-                        CONF_NAME: name,
                         CONF_TOKEN: token,
                         CONF_LATITUDE: latitude,
                         CONF_LONGITUDE: longitude,
+                        CONF_NAME: name,
+                        CONF_METHOD: method,
                     },
                 )
 
         return self.async_show_form(
-            step_id="user",
-            data_schema=DATA_SCHEMA,
+            step_id="geographic_localization",
+            data_schema=data_schema,
             errors=errors,
         )
-    
 
+    async def async_step_station_id(self, user_input=None) -> FlowResult:
+        errors = {}
+
+        data_schema = vol.Schema(
+            {
+                vol.Required(CONF_TOKEN): cv.string,
+                vol.Required(CONF_ID): cv.string,
+                vol.Optional(CONF_NAME): cv.string
+            }
+        )
+
+        if user_input:
+
+            token = user_input[CONF_TOKEN]
+            id = user_input[CONF_ID]
+            method = CONF_ID
+            requester = WaqiDataRequester(None, None, token, id, method)
+            await self.hass.async_add_executor_job(requester.update)
+
+            validateData = requester.GetData()
+            if validateData:
+                if validateData["status"] == "ok":
+                    if "status" in validateData["data"]:
+                        if validateData["data"]["status"] == "error":
+                            if validateData["data"]["msg"] == "Unknown ID":
+                                errors["base"] = "unknow_station_id"
+                            else:
+                                errors["base"] = "server_error"
+                elif validateData["status"] == "error":
+                    if validateData["data"] == "Invalid key":
+                        errors["base"] = "invalid_token"
+                    else:
+                        errors["base"] = "server_error"
+                else:
+                    errors["base"] = "server_error"
+            else:
+                errors["base"] = "server_not_available"
+
+            stationName = requester.GetStationName()
+            name = user_input.get(CONF_NAME, stationName)
+
+            if not errors:
+                await self.async_set_unique_id(name)
+                self._abort_if_unique_id_configured()
+
+                return self.async_create_entry(
+                    title=name,
+                    data={
+                        CONF_TOKEN: token,
+                        CONF_ID: id,
+                        CONF_NAME: name,
+                        CONF_METHOD: method,
+                    },
+                )
+
+        return self.async_show_form(
+            step_id="station_id",
+            data_schema=data_schema,
+            errors=errors,
+        )

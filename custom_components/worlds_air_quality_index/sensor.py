@@ -24,7 +24,9 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_LATITUDE, 
     CONF_LONGITUDE, 
-    CONF_TOKEN
+    CONF_TOKEN,
+    CONF_ID,
+    CONF_METHOD
 )
 
 from .const import (
@@ -67,7 +69,6 @@ async def async_setup_platform(
         )
     )
 
-
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
@@ -75,21 +76,36 @@ async def async_setup_entry(
 
     _LOGGER.debug("config token:")
     _LOGGER.debug(entry.data[CONF_TOKEN])
-    _LOGGER.debug(entry.data[CONF_LATITUDE])
-    _LOGGER.debug(entry.data[CONF_LONGITUDE])
+    _LOGGER.debug("config method:")
+    _LOGGER.debug(entry.data[CONF_METHOD])
+    _LOGGER.debug("config name:")
+    _LOGGER.debug(entry.data[CONF_NAME])
 
     name = entry.data[CONF_NAME]
     token = entry.data[CONF_TOKEN]
-    latitude = entry.data[CONF_LATITUDE]
-    longitude  = entry.data[CONF_LONGITUDE]
-    requester = WaqiDataRequester(latitude, longitude, token)
+    method = entry.data[CONF_METHOD]
+    
+    if method == CONF_ID:
+        _LOGGER.debug("config ID:")
+        _LOGGER.debug(entry.data[CONF_ID])
+        id = entry.data[CONF_ID]
+        requester = WaqiDataRequester(None, None, token, id, method)
+    else:
+        _LOGGER.debug("config latitude:")
+        _LOGGER.debug(entry.data[CONF_LATITUDE])
+        _LOGGER.debug("config longitude:")
+        _LOGGER.debug(entry.data[CONF_LONGITUDE])
+        latitude = entry.data[CONF_LATITUDE]
+        longitude  = entry.data[CONF_LONGITUDE]
+        requester = WaqiDataRequester(latitude, longitude, token, None, method)
+    
     await hass.async_add_executor_job(requester.update)
 
     scannedData = requester.GetData()
     scannedData = scannedData["data"]["iaqi"]
 
     entities = []
-    #entities.append(WorldsAirQualityIndexAqiSensor(requester))
+    
     for res in SENSORS:
         if res == "aqi" or res in scannedData:
             entities.append(WorldsAirQualityIndexSensor(res, requester))

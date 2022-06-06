@@ -15,10 +15,13 @@ from homeassistant.components.sensor import SensorDeviceClass
 
 DOMAIN = "worlds_air_quality_index"
 PLATFORMS = [Platform.SENSOR]
-SW_VERSION = "0.2.0"
+SW_VERSION = "0.3.0"
 
 SCAN_INTERVAL = timedelta(minutes=30)
 
+DISCOVERY_TYPE = "discovery_type"
+GEOGRAPHIC_LOCALIZATION = "Geographic localization"
+STATION_ID = "Station ID"
 DEFAULT_NAME = 'waqi1'
 
 SENSORS = {

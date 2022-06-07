@@ -4,9 +4,20 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import (
+    callback,
+    HomeAssistant
+)
+from homeassistant.helpers.entity_registry import async_migrate_entries
+from homeassistant.const import (
+    CONF_ID,
+    CONF_METHOD
+)
 
-from .const import PLATFORMS
+from .const import (
+    PLATFORMS,
+    GEOGRAPHIC_LOCALIZATION
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,3 +39,19 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload worlds_air_quality_index config entry."""
 
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+async def async_migrate_entry(hass, config_entry):
+    """Migrate worlds_air_quality_index old entry."""
+    _LOGGER.debug("Migrating from version %s", config_entry.version)
+
+    #  Flatten configuration but keep old data if user rollbacks HASS prior to 0.106
+    if config_entry.version == 1:
+        data = {**config_entry.data, CONF_ID: None, CONF_METHOD: GEOGRAPHIC_LOCALIZATION}
+        hass.config_entries.async_update_entry(
+            config_entry, data=data
+        )
+        config_entry.version = 2
+
+    _LOGGER.info("Migration to version %s successful", config_entry.version)
+
+    return True

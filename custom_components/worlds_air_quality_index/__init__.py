@@ -11,12 +11,12 @@ from homeassistant.core import (
 from homeassistant.helpers.entity_registry import async_migrate_entries
 from homeassistant.const import (
     CONF_ID,
+    CONF_LOCATION,
     CONF_METHOD
 )
 
 from .const import (
-    PLATFORMS,
-    GEOGRAPHIC_LOCALIZATION
+    PLATFORMS
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -46,9 +46,10 @@ async def async_migrate_entry(hass, config_entry):
 
     #  Flatten configuration but keep old data if user rollbacks HASS prior to 0.106
     if config_entry.version == 1:
-        data = {**config_entry.data, CONF_ID: None, CONF_METHOD: GEOGRAPHIC_LOCALIZATION}
+        unique_id = config_entry.data[CONF_MAC]
+        data = {**config_entry.data, CONF_ID: None, CONF_METHOD: CONF_LOCATION}
         hass.config_entries.async_update_entry(
-            config_entry, data=data
+            config_entry, unique_id=unique_id, data=data
         )
         config_entry.version = 2
 

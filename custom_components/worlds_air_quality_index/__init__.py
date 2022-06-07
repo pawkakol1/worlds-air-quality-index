@@ -73,4 +73,4 @@ async def async_migrate_entry(hass, config_entry):
 
     _LOGGER.info("Migration to version %s successful", version)
 
-    return False
+    return True

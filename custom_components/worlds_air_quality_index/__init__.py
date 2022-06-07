@@ -47,13 +47,30 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_migrate_entry(hass, config_entry):
     """Migrate worlds_air_quality_index old entry."""
-    _LOGGER.debug("Migrating from version %s", config_entry.version)
+    config_entries = hass.config_entries
+    data = config_entry.data
+    version = config_entry.version
 
-    
-    #  Flatten configuration but keep old data if user rollbacks HASS prior to 0.106
-    if config_entry.version == 1:
-        _LOGGER.info(config_entry.data)
+    _LOGGER.debug("Migrating World's Air Quality Index entry from version %s", version)
 
-    
+    if version == 1:
+        method = CONF_LOCATION
+        idx = None
+        new_data = {**data, CONF_ID: idx, CONF_METHOD: method}
 
-    return True
+        latitude = data[CONF_LATITUDE]
+        longitude = data[CONF_LONGITUDE]
+        if latitude is None:
+            latitude = hass.config.latitude
+            new_data = {**new_data, CONF_LATITUDE: latitude}
+        if longitude is None:
+            longitude = hass.config.longitude
+            new_data = {**new_data, CONF_LONGITUDE: longitude}
+        
+        version = 2
+        config_entry.version = version
+        config_entries.async_update_entry(config_entry, data=new_data)
+
+    _LOGGER.info("Migration to version %s successful", version)
+
+    return False

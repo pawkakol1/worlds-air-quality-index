@@ -10,13 +10,18 @@ from homeassistant.core import (
 )
 from homeassistant.helpers.entity_registry import async_migrate_entries
 from homeassistant.const import (
-    CONF_ID,
+    CONF_NAME,
+    CONF_LATITUDE, 
+    CONF_LONGITUDE, 
+    CONF_TOKEN,
     CONF_LOCATION,
-    CONF_METHOD
+    CONF_METHOD,
+    CONF_ID
 )
 
 from .const import (
-    PLATFORMS
+    PLATFORMS,
+    GEOGRAPHIC_LOCALIZATION
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,15 +49,11 @@ async def async_migrate_entry(hass, config_entry):
     """Migrate worlds_air_quality_index old entry."""
     _LOGGER.debug("Migrating from version %s", config_entry.version)
 
+    
     #  Flatten configuration but keep old data if user rollbacks HASS prior to 0.106
     if config_entry.version == 1:
-        unique_id = config_entry.data[CONF_MAC]
-        data = {**config_entry.data, CONF_ID: None, CONF_METHOD: CONF_LOCATION}
-        hass.config_entries.async_update_entry(
-            config_entry, unique_id=unique_id, data=data
-        )
-        config_entry.version = 2
+        _LOGGER.info(config_entry.data)
 
-    _LOGGER.info("Migration to version %s successful", config_entry.version)
+    
 
     return True

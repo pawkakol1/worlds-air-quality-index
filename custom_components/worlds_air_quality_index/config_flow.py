@@ -188,7 +188,7 @@ class WorldsAirQualityIndexConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             stationName = requester.GetStationName()
             name = user_input.get(CONF_NAME, stationName)
-
+            
             if not errors:
                 await self.async_set_unique_id(name)
                 self._abort_if_unique_id_configured()

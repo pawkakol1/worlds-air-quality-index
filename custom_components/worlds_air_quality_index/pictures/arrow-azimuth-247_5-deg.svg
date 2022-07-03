@@ -12,7 +12,7 @@
    height="24"
    viewBox="0 0 24 24"
    id="svg4530"
-   sodipodi:docname="arrow-azimuth-247.5-deg.svg"
+   sodipodi:docname="arrow-azimuth-247_5-deg.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <title
      id="title4548">Arrow azimuth 247.5 deg</title>
@@ -80,8 +80,8 @@
      inkscape:window-height="1017"
      id="namedview4532"
      showgrid="false"
-     inkscape:zoom="17.666667"
-     inkscape:cx="13.256898"
+     inkscape:zoom="59.901043"
+     inkscape:cx="8.8997118"
      inkscape:cy="12.517603"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
@@ -98,7 +98,7 @@
   <path
      inkscape:connector-curvature="0"
      d="M 5.5256225,15.156736 17.997884,9.9905576 M 5.5256225,15.156736 7.1492097,11.237048 m -1.6235872,3.91969 3.9196887,1.623587"
-     style="fill:none;stroke:#070408;stroke-linecap:round;stroke-linejoin:round"
+     style="fill:none;stroke:#44739e;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
      id="path8"
      sodipodi:nodetypes="cccccc" />
 </svg>

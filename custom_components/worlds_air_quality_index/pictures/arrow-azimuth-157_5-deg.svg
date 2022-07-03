@@ -12,10 +12,10 @@
    height="24"
    viewBox="0 0 24 24"
    id="svg4530"
-   sodipodi:docname="arrow-azimuth-22.5-deg.svg"
+   sodipodi:docname="arrow-azimuth-157_5-deg.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <title
-     id="title4548">Arrow azimuth 22.5 deg</title>
+     id="title4548">Arrow azimuth 157.5 deg</title>
   <metadata
      id="metadata4536">
     <rdf:RDF>
@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title>Arrow azimuth 22.5 deg</dc:title>
+        <dc:title>Arrow azimuth 157.5 deg</dc:title>
         <dc:date>2022-07-03</dc:date>
         <dc:creator>
           <cc:Agent>
@@ -41,7 +41,7 @@
             <rdf:li>arrows aziumth direction</rdf:li>
           </rdf:Bag>
         </dc:subject>
-        <dc:description>Arrow azimuth 22.5 degree</dc:description>
+        <dc:description>Arrow azimuth 157.5 degree</dc:description>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-nc-sa/4.0/" />
         <dc:source>https://github.com/pawkakol1/worlds-air-quality-index</dc:source>
@@ -80,8 +80,8 @@
      inkscape:window-height="1017"
      id="namedview4532"
      showgrid="false"
-     inkscape:zoom="17.666667"
-     inkscape:cx="13.256898"
+     inkscape:zoom="59.901043"
+     inkscape:cx="8.8997118"
      inkscape:cy="12.517603"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
@@ -97,8 +97,8 @@
      id="rect4" />
   <path
      inkscape:connector-curvature="0"
-     d="M 12.959024,5.7634921 7.7928431,18.235753 M 12.959024,5.7634921 14.582613,9.6831803 m -1.62359,-3.9196892 -3.9196878,1.623589"
-     style="fill:none;stroke:#070408;stroke-linecap:round;stroke-linejoin:round"
+     d="M 13.533048,19.621572 8.3668696,7.1493105 M 13.533048,19.621572 9.6133596,17.997985 m 3.9196904,1.623587 1.623587,-3.919688"
+     style="fill:none;stroke:#44739e;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
      id="path8"
      sodipodi:nodetypes="cccccc" />
 </svg>

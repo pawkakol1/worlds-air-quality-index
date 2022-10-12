@@ -39,7 +39,11 @@ from .const import (
     SENSORS,
     DOMAIN,
     DEFAULT_NAME,
-    SW_VERSION
+    SW_VERSION,
+    WIND_DIRECTION,
+    WIND_DIRECTION_PREFIX,
+    WIND_DIRECTION_SUFFIX,
+    WIND_DIRECTION_FOLDER,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -121,6 +125,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
         self._stationName = self._requester.GetStationName()
         self._stationIdx = self._requester.GetStationIdx()
         self._updateLastTime = self._requester.GetUpdateLastTime()
+        self._data = self._requester.GetData()
         self._name = SENSORS[self._resType][0]
         self._tempUnit = tempUnit
 
@@ -157,7 +162,24 @@ class WorldsAirQualityIndexSensor(SensorEntity):
 
     @property
     def icon(self) -> str | None:
-        return SENSORS[self._resType][2]
+        if self._resType != 'wg':
+            return SENSORS[self._resType][2]
+    
+    @property
+    def entity_picture(self) -> str | None:
+        _LOGGER.debug("Check:")
+        _LOGGER.debug(self._resType)
+        if SENSORS[self._resType][2] == 'custom' and self._resType == 'wg':
+            val = float(self._data["data"]["iaqi"]["wg"]["v"])
+            _LOGGER.debug(val)
+            for res in WIND_DIRECTION:
+                if val > float(res["min"]):
+                    _LOGGER.debug(res["val"])
+                    _LOGGER.debug("matched")
+                    return WIND_DIRECTION_FOLDER + WIND_DIRECTION_PREFIX + res["val"] + WIND_DIRECTION_SUFFIX
+            return WIND_DIRECTION_FOLDER + WIND_DIRECTION_PREFIX + WIND_DIRECTION[0]["val"] + WIND_DIRECTION_SUFFIX
+        else:
+            return None
 
     def update(self) -> None:
         #Fetch new state data for the sensor.
@@ -165,7 +187,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
 
         self._requester.update()
 
-        _data = self._requester.GetData()
+        self._data = self._requester.GetData()
         self._updateLastTime = self._requester.GetUpdateLastTime()
 
         if self._resType == 'aqi':
@@ -176,11 +198,11 @@ class WorldsAirQualityIndexSensor(SensorEntity):
                 self._state = int(_data["data"]["aqi"])
         elif self._resType == 't':
             if self._tempUnit == TEMP_FAHRENHEIT:
-                self._state = 9.0 * float(_data["data"]["iaqi"]['t']["v"]) / 5.0 + 32.0
+                self._state = 9.0 * float(self._data["data"]["iaqi"]['t']["v"]) / 5.0 + 32.0
             else:
-                self._state = float(_data["data"]["iaqi"]['t']["v"])
+                self._state = float(self._data["data"]["iaqi"]['t']["v"])
         else:
-            self._state = float(_data["data"]["iaqi"][self._resType]["v"])
+            self._state = float(self._data["data"]["iaqi"][self._resType]["v"])
         
         self._attr_extra_state_attributes = {
             "StationName": self._requester.GetStationName(),

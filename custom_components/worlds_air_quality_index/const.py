@@ -25,7 +25,7 @@ STATION_ID = "Station ID"
 DEFAULT_NAME = 'waqi1'
 
 SENSORS = {
-    'aqi': ['Air Quality Index', None, 'mdi:leaf', SensorDeviceClass.AQI],
+    'aqi': ['Air Quality Index', ' ', 'mdi:leaf', SensorDeviceClass.AQI],
     'pm10': ['Particulate matter (PM10)', CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, 'mdi:skull-outline', SensorDeviceClass.PM10],
     'pm25': ['Particulate matter (PM2,5)', CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, 'mdi:skull-outline', SensorDeviceClass.PM25],
     'co': ['Carbon monoxide (CO)', CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, 'mdi:molecule-co', SensorDeviceClass.CO],

@@ -16,19 +16,24 @@ Integration supports below sensors of WAQI station:
 - Temperature
 - Rain
 - Wind speed
+- Wind direction
 
 Diffrent stations support diffrent data, "World's Air Quality Index" integration will recognise all parameters (availible in station) according to list of integration's supported sensors.
 
+WAQI supports diffrents API from
+
 There are 2 supported integration methods:
 
-- using geolocalized coordinates,
+- using geolocalized coordinates (it works with WAQI internal stations only),
 - using station ID.
 
-Notice: waqi.info API supports stations with IDs between 1 and 13837 only. If your station has ID greater than 13837 it won't be able to add using station ID method nor geolocalized coordinates method. waqi.info website shows (on map) much more stations, than are supported by waqi.info API. All others stations are integrated with WAQI map from others websites. In the future waqi.info API would be developed, and there would be more supported stations, you can always check if your station is supported. You just need to copy below link, paste to the URL of web browser, change number of interested station, and paste your token insted {{token}}
+Notice: WAQI API supports 2 diffrend methods of providing station ID. It depends on the station is internal WAQI station or downloaded from other source by their API. Intenal stations needs to put just a number of station ID (without @ char). For external stations it needs to put station ID number with 'A' char prefix. If you want to integrate some station using ID, but you don't know what method you need to use, you can always check it using web browser. You just need to copy one of below link, paste to the URL of web browser, change number of interested station, and paste your token insted {{token}}
 
 `https://api.waqi.info/feed/@13837/?token={{token}}`
+or
+`https://api.waqi.info/feed/A254464/?token={{token}}`
 
-Web browser will receive some data, if station is supported or "Unknown ID" message, if it doesn't.
+Web browser will receive some data, if station is supported or "Unknown ID" message, if it doesn't, but one of above link types should work.
 
 # Installation
 
@@ -40,8 +45,11 @@ You can also copy worlds_air_quality_index folder into /config/custom_components
 To add integration use "Add Integration" button in section Settings->Devices&Services section, and choose "World's Air Quality Index".
 In popup window choose method of station adding:
 
-- using geographic localization,
-- using station ID.
+- using geographic localization (NOTICE: it works with WAQI internal stations only),
+- using station ID (NOTICE: it works with all API types available in WAQI: 
+    - WAQI internal stations,
+    - stations from CanAir.IO,
+    - stations from Citizen Science project luftdaten.info.
 
 In case of geographic localization, there will be shown next window, where you need to put:
 
@@ -53,7 +61,7 @@ In case of geographic localization, there will be shown next window, where you n
 In case of station ID, there will be shown next window, where you need to put:
 
 - your waqi.info account token (required),
-- ID of WAQI station (required) - 13837 is proper, @13837 is not proper,
+- ID of WAQI station (required) - WAQI Internal stations it is needed to put just a number (without @ char), for stations from other sources it needs to put 'A' char as a prefix(eg. A67564),
 - your own name of station (optional).
 
 To get WAQI token you need to sign up [here](https://aqicn.org/data-platform/token/).

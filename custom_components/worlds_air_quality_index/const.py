@@ -2,6 +2,8 @@
 
 from datetime import timedelta
 
+from typing import Final
+
 from homeassistant.const import (
     TEMP_CELSIUS,
     PRESSURE_HPA,
@@ -16,14 +18,25 @@ from homeassistant.components.sensor import SensorDeviceClass
 
 DOMAIN = "worlds_air_quality_index"
 PLATFORMS = [Platform.SENSOR]
-SW_VERSION = "0.3.5"
+SW_VERSION = "0.3.6"
 
-SCAN_INTERVAL = timedelta(minutes=30)
-
+CONF_FORECAST: Final = "forecast"
+CONF_INDEX: Final = "index"
+DEFAULT_NAME = 'waqi1'
 DISCOVERY_TYPE = "discovery_type"
 GEOGRAPHIC_LOCALIZATION = "Geographic localization"
+SCAN_INTERVAL = timedelta(minutes=30)
 STATION_ID = "Station ID"
-DEFAULT_NAME = 'waqi1'
+
+FORECAST = {
+    'o3': ['Ozone (O3) - Forecast', CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, 'mdi:skull-outline', SensorDeviceClass.OZONE],
+    'pm10': ['Particulate matter (PM10) - Forecast', CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, 'mdi:skull-outline', SensorDeviceClass.PM10],
+    'pm25': ['Particulate matter (PM2,5) - Forecast', CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, 'mdi:skull-outline', SensorDeviceClass.PM25],
+    'so2': ['Sulphur dioxide (SO2) - Forecast', CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, 'mdi:smog', SensorDeviceClass.SULPHUR_DIOXIDE],
+    'co': ['Carbon monoxide (CO) - Forecast', CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, 'mdi:molecule-co', SensorDeviceClass.CO],
+}
+
+FORECAST_ATTR = ['avg', 'min', 'max']
 
 SENSORS = {
     'aqi': ['Air Quality Index', ' ', 'mdi:leaf', SensorDeviceClass.AQI],

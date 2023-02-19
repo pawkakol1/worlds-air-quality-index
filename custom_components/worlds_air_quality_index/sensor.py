@@ -1,6 +1,7 @@
 """Get station's air quality informations"""
 from __future__ import annotations
 
+from datetime import date, timedelta
 import logging
 from this import s
 
@@ -8,13 +9,8 @@ from typing import Any
 
 from .waqi_api import WaqiDataRequester
 
-import json
-
-import voluptuous as vol
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
-    PLATFORM_SCHEMA as PARENT_PLATFORM_SCHEMA,
     SensorEntity,
 )
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
@@ -26,13 +22,11 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from homeassistant.const import (
-    CONF_ATTRIBUTE,
     CONF_ID,
     CONF_LATITUDE, 
     CONF_LONGITUDE, 
     CONF_METHOD,
     CONF_NAME,
-    CONF_SENSORS,
     CONF_TEMPERATURE_UNIT,
     CONF_TOKEN,
     TEMP_CELSIUS,
@@ -40,12 +34,8 @@ from homeassistant.const import (
 )
 
 from .const import (
-    CONF_FORECAST,
-    CONF_INDEX,
     DOMAIN,
     DEFAULT_NAME,
-    FORECAST,
-    FORECAST_ATTR,
     SENSORS,
     SW_VERSION,
     WIND_DIRECTION,
@@ -114,25 +104,12 @@ async def async_setup_entry(
     _LOGGER.debug("Got station data from WAQI server:")
     _LOGGER.debug(scannedData)
     scannedDataSensors = scannedData["data"]["iaqi"]
-    scannedDataForecast = scannedData['data']['forecast']['daily']
 
     entities = []
     
     for res in SENSORS:
         if res == "aqi" or res in scannedDataSensors:
-            entities.append(WorldsAirQualityIndexSensor(res, requester, tempUnit, CONF_SENSORS, None))
-
-    for res in FORECAST:
-        if res in scannedDataForecast:
-            for attr in FORECAST_ATTR:
-                for x in range(0, len(scannedDataForecast[res])):
-                    if attr in scannedDataForecast[res][x]:
-                        _LOGGER.debug(f"Found attr:{attr}, index:{x} in data from station")
-                        additional_attr = {
-                            CONF_ATTRIBUTE: attr,
-                            CONF_INDEX: x
-                        }
-                        entities.append(WorldsAirQualityIndexSensor(res, requester, tempUnit, CONF_FORECAST, additional_attr))
+            entities.append(WorldsAirQualityIndexSensor(res, requester, tempUnit))
 
     async_add_entities(entities, update_before_add=True)
 
@@ -141,23 +118,16 @@ async def async_setup_entry(
 class WorldsAirQualityIndexSensor(SensorEntity):
     """Representation of a Sensor."""
 
-    def __init__(self, resType: str, requester: WaqiDataRequester, tempUnit: str, sensorType: str, additional_attr: dict[str, Any] | None) -> None:
+    def __init__(self, resType: str, requester: WaqiDataRequester, tempUnit: str) -> None:
         self._state = None
         self._resType = resType
         self._requester = requester
-        self._sensorType = sensorType
         self._stationName = self._requester.GetStationName()
         self._stationIdx = self._requester.GetStationIdx()
         self._updateLastTime = self._requester.GetUpdateLastTime()
         self._data = self._requester.GetData()
 
-        if self._sensorType == CONF_SENSORS:
-            self._name = SENSORS[self._resType][0]
-            _LOGGER.debug(f"New base sensor: {self._name}")
-        elif self._sensorType == CONF_FORECAST:
-            self._forecast_attribute = additional_attr
-            self._name = f"{FORECAST[self._resType][0]} {self._forecast_attribute[CONF_ATTRIBUTE].capitalize()} Day{self._forecast_attribute[CONF_INDEX]}"
-            _LOGGER.debug(f"New forecast sensor: {self._name}")
+        self._name = SENSORS[self._resType][0]
         self._tempUnit = tempUnit
 
         self._attr_name = self._name
@@ -183,28 +153,19 @@ class WorldsAirQualityIndexSensor(SensorEntity):
     def unit_of_measurement(self) -> str:
         #Return the unit of measurement.
         
-        if self._sensorType == CONF_SENSORS:
-            if SENSORS[self._resType][1] == TEMP_CELSIUS:
-                return self._tempUnit
-            else:
-                return SENSORS[self._resType][1]
-        elif self._sensorType == CONF_FORECAST:
-            return FORECAST[self._resType][1]
+        if SENSORS[self._resType][1] == TEMP_CELSIUS:
+            return self._tempUnit
+        else:
+            return SENSORS[self._resType][1]
 
     @property
     def device_class(self) -> SensorDeviceClass | str | None:
-        if self._sensorType == CONF_SENSORS:
-            return SENSORS[self._resType][3]
-        elif self._sensorType == CONF_FORECAST:
-            return FORECAST[self._resType][3]
+        return SENSORS[self._resType][3]
 
     @property
     def icon(self) -> str | None:
         if self._resType != 'wg':
-            if self._sensorType == CONF_SENSORS:
-                return SENSORS[self._resType][2]
-            elif self._sensorType == CONF_FORECAST:
-                return FORECAST[self._resType][2]
+            return SENSORS[self._resType][2]
     
     @property
     def entity_picture(self) -> str | None:
@@ -243,13 +204,34 @@ class WorldsAirQualityIndexSensor(SensorEntity):
             else:
                 self._state = float(self._data["data"]["iaqi"]['t']["v"])
         else:
-            if self._sensorType == CONF_SENSORS:
-                self._state = float(self._data["data"]["iaqi"][self._resType]["v"])
-            elif self._sensorType == CONF_FORECAST:
-                self._state = float(self._data['data']['forecast']['daily'][self._resType][self._forecast_attribute[CONF_INDEX]][self._forecast_attribute[CONF_ATTRIBUTE]])
+            self._state = float(self._data["data"]["iaqi"][self._resType]["v"])
+
         
         self._attr_extra_state_attributes = {
             "StationName": self._requester.GetStationName(),
             "LastUpdate": self._requester.GetUpdateLastTime()
         }
-
+        if self._resType in self._data['data']['forecast']['daily']:
+            scannedDataForecast = self._data['data']['forecast']['daily'][self._resType]
+            day = date.today()
+            dayName = "Today"
+            if scannedDataForecast is not None:
+                for res in scannedDataForecast:
+                    readDate = date.fromisoformat(res["day"])
+                    if readDate == day:
+                        self._attr_extra_state_attributes['Forecast' + dayName + 'Avg'] = res['avg']
+                        self._attr_extra_state_attributes['Forecast' + dayName + 'Min'] = res['min']
+                        self._attr_extra_state_attributes['Forecast' + dayName + 'Max'] = res['max']
+                        _LOGGER.debug(f"Forecast{dayName} Avg/Min/Max extra state attributes added.")
+                    
+                    day = day + timedelta(days=1)
+                    if dayName == "Today":
+                        dayName = "Tomorrow"
+                    elif dayName == "Tomorrow":
+                        dayName = "2Days"
+                    elif dayName == "2Days":
+                        dayName = "3Days"
+                    elif dayName == "3Days":
+                        dayName = "4Days"
+                    elif dayName == "4Days":
+                        dayName = "5Days"

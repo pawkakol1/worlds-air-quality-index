@@ -20,7 +20,20 @@ Integration supports below sensors of WAQI station:
 
 Diffrent stations support diffrent data, "World's Air Quality Index" integration will recognise all parameters (availible in station) according to list of integration's supported sensors.
 
-WAQI supports diffrents API from
+If station's API supports forecast for pollution sensors (these on above list):
+
+- Carbon monoxide (CO)
+- Nitrogen dioxide (NO2)
+- Ozone (O3)
+- Particulate matter (PM10)
+- Particulate matter (PM2,5)
+- Sulphur dioxide (SO2)
+
+Pollution sensors will update forecast, and it will be able to read as attributes of the sensor:
+
+<img src="https://github.com/pawkakol1/worlds-air-quality-index/tree/main/readme_files/forecast.png">
+
+If the station supports forecast of soem pollution sensor, but it doesn't support actual value of this sensor, then the forecast will be omitted.
 
 There are 2 supported integration methods:
 
@@ -46,10 +59,10 @@ To add integration use "Add Integration" button in section Settings->Devices&Ser
 In popup window choose method of station adding:
 
 - using geographic localization (NOTICE: it works with WAQI internal stations only),
-- using station ID (NOTICE: it works with all API types available in WAQI: 
-    - WAQI internal stations,
-    - stations from CanAir.IO,
-    - stations from Citizen Science project luftdaten.info.
+- using station ID (NOTICE: it works with all API types available in WAQI:
+  - WAQI internal stations,
+  - stations from CanAir.IO,
+  - stations from Citizen Science project luftdaten.info.
 
 In case of geographic localization, there will be shown next window, where you need to put:
 

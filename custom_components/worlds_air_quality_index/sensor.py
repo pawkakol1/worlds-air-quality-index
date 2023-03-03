@@ -105,7 +105,7 @@ async def async_setup_entry(
     _LOGGER.debug(scannedData)
     
     if not "forecast" in scannedData['data']:
-        _LOGGER.info(f"Station {name} doesn't support forecast")
+        _LOGGER.warning(f"Station {name} doesn't support forecast")
     scannedDataSensors = scannedData["data"]["iaqi"]
 
     entities = []

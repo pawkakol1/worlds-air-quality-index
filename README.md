@@ -16,7 +16,7 @@ Integration supports below sensors of WAQI station:
 - Temperature
 - Rain
 - Wind speed
-- Wind direction
+- Wind gust
 
 Diffrent stations support diffrent data, "World's Air Quality Index" integration will recognise all parameters (availible in station) according to list of integration's supported sensors.
 

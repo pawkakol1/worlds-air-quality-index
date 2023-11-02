@@ -31,9 +31,9 @@ If station's API supports forecast for pollution sensors (these on above list):
 
 Pollution sensors will update forecast, and it will be able to read as attributes of the sensor:
 
-<img src="https://github.com/pawkakol1/worlds-air-quality-index/tree/main/readme_files/forecast.png">
+<img src="https://github.com/pawkakol1/worlds-air-quality-index/tree/main/readme_files/forecast.png" height="414">
 
-If the station supports forecast of some pollution sensor, but it doesn't support actual value of this sensor, then the forecast will be omitted.
+If the station supports forecast of some pollution sensor, but it doesn't support actual value of this sensor, then the sensor will be also ceated. Its current state will be set to "UNAVAILABLE", but forecast will be able to read as the sensor attributes.
 
 There are 2 supported integration methods:
 

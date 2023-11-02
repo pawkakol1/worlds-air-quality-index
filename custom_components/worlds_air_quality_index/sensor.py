@@ -181,6 +181,11 @@ class WorldsAirQualityIndexSensor(SensorEntity):
 
         self._data = self._requester.GetData()
         self._updateLastTime = self._requester.GetUpdateLastTime()
+
+        self._attr_extra_state_attributes = {
+            "StationName": self._requester.GetStationName(),
+            "LastUpdate": self._requester.GetUpdateLastTime()
+        }
         
         if self._resType == 'aqi':
             if self._data["data"]["aqi"] == "-":
@@ -188,6 +193,8 @@ class WorldsAirQualityIndexSensor(SensorEntity):
                 self._state = 0
             else:
                 self._state = int(self._data["data"]["aqi"])
+                self._attr_extra_state_attributes['dominentpol'] = self._data["data"]["dominentpol"]
+
         elif self._resType in self._data["data"]["iaqi"]:
             if self._resType == 't':
                 if self._tempUnit == TEMP_FAHRENHEIT:
@@ -199,11 +206,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
         elif "forecast" in self._data['data']:
             if self._resType in self._data['data']['forecast']['daily']:
                 self._state = STATE_UNAVAILABLE
-
-        self._attr_extra_state_attributes = {
-            "StationName": self._requester.GetStationName(),
-            "LastUpdate": self._requester.GetUpdateLastTime()
-        }
+        
         if "forecast" in self._data['data']:
             if self._resType in self._data['data']['forecast']['daily']:
                 scannedDataForecast = self._data['data']['forecast']['daily'][self._resType]

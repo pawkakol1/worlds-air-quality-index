@@ -23,8 +23,8 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from homeassistant.const import (
     CONF_ID,
-    CONF_LATITUDE, 
-    CONF_LONGITUDE, 
+    CONF_LATITUDE,
+    CONF_LONGITUDE,
     CONF_METHOD,
     CONF_NAME,
     CONF_TEMPERATURE_UNIT,
@@ -78,8 +78,8 @@ async def async_setup_entry(
     name = entry.data[CONF_NAME]
     token = entry.data[CONF_TOKEN]
     method = entry.data[CONF_METHOD]
-    tempUnit = entry.data[CONF_TEMPERATURE_UNIT]
-    
+    SENSORS['t'][1] = entry.data[CONF_TEMPERATURE_UNIT]
+
     if method == CONF_ID:
         _LOGGER.debug("config ID:")
         _LOGGER.debug(entry.data[CONF_ID])
@@ -93,13 +93,13 @@ async def async_setup_entry(
         latitude = entry.data[CONF_LATITUDE]
         longitude  = entry.data[CONF_LONGITUDE]
         requester = WaqiDataRequester(latitude, longitude, token, None, method)
-    
+
     await hass.async_add_executor_job(requester.update)
 
     scannedData = requester.GetData()
     _LOGGER.debug("Got station data from WAQI server:")
     _LOGGER.debug(scannedData)
-    
+
     if not "forecast" in scannedData['data']:
         _LOGGER.warning(f"Station {name} doesn't support forecast")
         scannedDataForecast = None
@@ -108,13 +108,13 @@ async def async_setup_entry(
     scannedDataSensors = scannedData["data"]["iaqi"]
 
     entities = []
-    
+
     for res in SENSORS:
         if res == "aqi" or res in scannedDataSensors:
-            entities.append(WorldsAirQualityIndexSensor(res, requester, tempUnit))
+            entities.append(WorldsAirQualityIndexSensor(res, requester))
         elif scannedDataForecast is not None:
             if res in scannedDataForecast:
-                entities.append(WorldsAirQualityIndexSensor(res, requester, tempUnit))
+                entities.append(WorldsAirQualityIndexSensor(res, requester))
 
     async_add_entities(entities, update_before_add=True)
 
@@ -123,7 +123,7 @@ async def async_setup_entry(
 class WorldsAirQualityIndexSensor(SensorEntity):
     """Representation of a Sensor."""
 
-    def __init__(self, resType: str, requester: WaqiDataRequester, tempUnit: str) -> None:
+    def __init__(self, resType: str, requester: WaqiDataRequester) -> None:
         self._state = None
         self._resType = resType
         self._requester = requester
@@ -133,7 +133,6 @@ class WorldsAirQualityIndexSensor(SensorEntity):
         self._data = self._requester.GetData()
 
         self._name = SENSORS[self._resType][0]
-        self._tempUnit = tempUnit
 
         self._attr_name = self._name
         self._attr_unique_id = f"{self._stationName}_{self._stationIdx}_{self._name}"
@@ -157,11 +156,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
     @property
     def unit_of_measurement(self) -> str:
         #Return the unit of measurement.
-        
-        if SENSORS[self._resType][1] == UnitOfTemperature.CELSIUS:
-            return self._tempUnit
-        else:
-            return SENSORS[self._resType][1]
+        return SENSORS[self._resType][1]
 
     @property
     def device_class(self) -> SensorDeviceClass | str | None:
@@ -171,7 +166,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
     def icon(self) -> str | None:
         if self._resType != 'wg':
             return SENSORS[self._resType][2]
-    
+
     def update(self) -> None:
         #Fetch new state data for the sensor.
         #This is the only method that should fetch new data for Home Assistant.
@@ -185,7 +180,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
             "StationName": self._requester.GetStationName(),
             "LastUpdate": self._requester.GetUpdateLastTime()
         }
-        
+
         if self._resType == 'aqi':
             if self._data["data"]["aqi"] == "-":
                 _LOGGER.warning("aqi value from json waqi api was undefined ('-' value)")
@@ -196,7 +191,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
 
         elif self._resType in self._data["data"]["iaqi"]:
             if self._resType == 't':
-                if self._tempUnit == UnitOfTemperature.FAHRENHEIT:
+                if SENSORS[self._resType][1] == UnitOfTemperature.FAHRENHEIT:
                     self._state = 9.0 * float(self._data["data"]["iaqi"]['t']["v"]) / 5.0 + 32.0
                 else:
                     self._state = float(self._data["data"]["iaqi"]['t']["v"])
@@ -205,7 +200,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
         elif "forecast" in self._data['data']:
             if self._resType in self._data['data']['forecast']['daily']:
                 self._state = STATE_UNAVAILABLE
-        
+
         if "forecast" in self._data['data']:
             if self._resType in self._data['data']['forecast']['daily']:
                 scannedDataForecast = self._data['data']['forecast']['daily'][self._resType]
@@ -219,7 +214,7 @@ class WorldsAirQualityIndexSensor(SensorEntity):
                             self._attr_extra_state_attributes['Forecast' + dayName + 'Min'] = res['min']
                             self._attr_extra_state_attributes['Forecast' + dayName + 'Max'] = res['max']
                             _LOGGER.debug(f"Forecast{dayName} Avg/Min/Max extra state attributes added.")
-                        
+
                         day = day + timedelta(days=1)
                         if dayName == "Today":
                             dayName = "Tomorrow"

@@ -13,8 +13,8 @@ import homeassistant.helpers.config_validation as cv
 
 from homeassistant.const import (
     CONF_NAME,
-    CONF_LATITUDE, 
-    CONF_LONGITUDE, 
+    CONF_LATITUDE,
+    CONF_LONGITUDE,
     CONF_TOKEN,
     CONF_LOCATION,
     CONF_METHOD,
@@ -67,7 +67,7 @@ class WorldsAirQualityIndexConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input[CONF_METHOD] == GEOGRAPHIC_LOCALIZATION:
             return await self.async_step_geographic_localization()
         return await self.async_step_station_id()
-    
+
     async def async_step_geographic_localization(self, user_input=None) -> FlowResult:
         """Handle the geographic localization step."""
         errors = {}
@@ -187,7 +187,7 @@ class WorldsAirQualityIndexConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             stationName = requester.GetStationName()
             name = user_input.get(CONF_NAME, stationName)
-            
+
             if not errors:
                 await self.async_set_unique_id(name)
                 self._abort_if_unique_id_configured()

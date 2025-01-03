@@ -33,7 +33,7 @@ class WaqiDataRequester(object):
                 _dat = requests.get(f"https://api.waqi.info/feed/@{self._idx}/?token={self._token}").text
             else:
                 _LOGGER.debug("No choosen method")
-                
+
             if _dat:
                 self._data = json.loads(_dat)
                 if self._data:
@@ -52,7 +52,7 @@ class WaqiDataRequester(object):
                                 self._stationName = self._stationName.replace(", ", "_").replace(" ", "_").replace("(", "").replace(")","").lower()
                             else:
                                 self._stationName = "UnknownName_" + self._stationIdx
-                        
+
                             if "time" in self._data["data"]:
                                 if "iso" in self._data["data"]["time"]:
                                     self._updateLastTime = self._data["data"]["time"]["iso"]
@@ -63,15 +63,15 @@ class WaqiDataRequester(object):
             self._stationName = None
             self._stationIdx = None
             return False
-    
+
     def GetData(self):
         return self._data
 
     def GetStationName(self):
         return self._stationName
-        
+
     def GetStationIdx(self):
         return self._stationIdx
-        
+
     def GetUpdateLastTime(self):
         return self._updateLastTime

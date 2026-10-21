@@ -100,11 +100,10 @@ async def async_setup_entry(
     _LOGGER.debug("Got station data from WAQI server:")
     _LOGGER.debug(scannedData)
     
-    if not "forecast" in scannedData['data']:
+    # some stations send no forecast, others a forecast without 'daily'
+    scannedDataForecast = (scannedData['data'].get('forecast') or {}).get('daily')
+    if scannedDataForecast is None:
         _LOGGER.warning(f"Station {name} doesn't support forecast")
-        scannedDataForecast = None
-    else:
-        scannedDataForecast = scannedData['data']['forecast']['daily']
     scannedDataSensors = scannedData["data"]["iaqi"]
 
     entities = []
@@ -186,6 +185,8 @@ class WorldsAirQualityIndexSensor(SensorEntity):
             "LastUpdate": self._requester.GetUpdateLastTime()
         }
         
+        dailyForecast = (self._data['data'].get('forecast') or {}).get('daily') or {}
+
         if self._resType == 'aqi':
             if self._data["data"]["aqi"] == "-":
                 _LOGGER.warning("aqi value from json waqi api was undefined ('-' value)")
@@ -202,13 +203,12 @@ class WorldsAirQualityIndexSensor(SensorEntity):
                     self._state = float(self._data["data"]["iaqi"]['t']["v"])
             else:
                 self._state = float(self._data["data"]["iaqi"][self._resType]["v"])
-        elif "forecast" in self._data['data']:
-            if self._resType in self._data['data']['forecast']['daily']:
-                self._state = STATE_UNAVAILABLE
+        elif self._resType in dailyForecast:
+            self._state = STATE_UNAVAILABLE
         
-        if "forecast" in self._data['data']:
-            if self._resType in self._data['data']['forecast']['daily']:
-                scannedDataForecast = self._data['data']['forecast']['daily'][self._resType]
+        if dailyForecast:
+            if self._resType in dailyForecast:
+                scannedDataForecast = dailyForecast[self._resType]
                 day = date.today()
                 dayName = "Today"
                 if scannedDataForecast is not None:

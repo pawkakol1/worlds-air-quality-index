@@ -8,11 +8,17 @@ from homeassistant.const import (
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
-    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     UnitOfLength,
     PERCENTAGE,
     Platform
 )
+
+try:  # Home Assistant 2026.8+ (CONCENTRATION_* are removed in 2027.8)
+    from homeassistant.const import UnitOfDensity
+
+    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER = UnitOfDensity.MICROGRAMS_PER_CUBIC_METER
+except ImportError:  # older Home Assistant
+    from homeassistant.const import CONCENTRATION_MICROGRAMS_PER_CUBIC_METER
 from homeassistant.components.sensor import SensorDeviceClass
 
 DOMAIN = "worlds_air_quality_index"
